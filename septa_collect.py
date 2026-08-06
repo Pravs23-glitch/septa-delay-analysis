@@ -74,6 +74,7 @@ def to_row(route, vehicle, collected_at):
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS vehicle_observations (
+    obs_id                  INTEGER PRIMARY KEY AUTOINCREMENT,
     collected_at            TEXT NOT NULL,
     route                   TEXT NOT NULL,
     vehicle_id              TEXT NOT NULL,
@@ -89,9 +90,11 @@ CREATE TABLE IF NOT EXISTS vehicle_observations (
     block_id                TEXT,
     seat_availability       TEXT,
     offset_sec              REAL,
-    raw                     TEXT,
-    PRIMARY KEY (collected_at, route, vehicle_id)
+    raw                     TEXT
 );
+
+CREATE INDEX IF NOT EXISTS idx_obs_route_time
+    ON vehicle_observations (route, collected_at);
 
 CREATE TABLE IF NOT EXISTS collection_runs (
     started_at   TEXT NOT NULL,
@@ -101,6 +104,19 @@ CREATE TABLE IF NOT EXISTS collection_runs (
     detail       TEXT
 );
 """
+
+
+OBS_COLUMNS = [
+    "collected_at", "route", "vehicle_id", "direction", "destination",
+    "lat", "lng", "minutes_late", "next_stop_id", "next_stop_name",
+    "next_stop_sequence", "trip_id", "block_id", "seat_availability",
+    "offset_sec", "raw",
+]
+
+INSERT_SQL = "INSERT INTO vehicle_observations ({cols}) VALUES ({marks})".format(
+    cols=", ".join(OBS_COLUMNS),
+    marks=", ".join("?" * len(OBS_COLUMNS)),
+)
 
 
 def connect(db_path):
@@ -128,18 +144,15 @@ def collect(conn, routes):
             continue
 
         rows = [to_row(route, v, started_at) for v in vehicles]
-        conn.executemany(
-            "INSERT OR IGNORE INTO vehicle_observations VALUES "
-            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            rows,
-        )
+        cur = conn.executemany(INSERT_SQL, rows)
+        written = cur.rowcount
         conn.execute(
             "INSERT INTO collection_runs VALUES (?,?,?,?,?)",
-            (started_at, route, "ok", len(rows), None),
+            (started_at, route, "ok", written, None),
         )
         conn.commit()
-        total += len(rows)
-        print(f"  route {route}: {len(rows)} vehicles")
+        total += written
+        print(f"  route {route}: {written} vehicles")
 
     return total
 
