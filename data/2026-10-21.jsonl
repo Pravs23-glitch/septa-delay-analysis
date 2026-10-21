@@ -68,3 +68,6 @@
 {"collected_at": "2026-10-21T20:45:13+00:00", "route": "21", "status": "error", "detail": "HTTPError: HTTP Error 503: Service Unavailable: Back-end server is at capacity"}
 {"collected_at": "2026-10-21T20:45:13+00:00", "route": "42", "status": "error", "detail": "HTTPError: HTTP Error 503: Service Unavailable: Back-end server is at capacity"}
 {"collected_at": "2026-10-21T20:45:13+00:00", "route": "47", "status": "error", "detail": "HTTPError: HTTP Error 503: Service Unavailable: Back-end server is at capacity"}
+{"collected_at": "2026-10-21T23:46:55+00:00", "route": "21", "status": "error", "detail": "HTTPError: HTTP Error 503: Service Unavailable: Back-end server is at capacity"}
+{"collected_at": "2026-10-21T23:46:55+00:00", "route": "42", "status": "error", "detail": "HTTPError: HTTP Error 503: Service Unavailable: Back-end server is at capacity"}
+{"collected_at": "2026-10-21T23:46:55+00:00", "route": "47", "status": "error", "detail": "HTTPError: HTTP Error 503: Service Unavailable: Back-end server is at capacity"}
